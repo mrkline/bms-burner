@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using SharpDX.DirectInput;
+
 namespace bms_burner
 {
     class BMSConfig
@@ -34,7 +36,7 @@ namespace bms_burner
             using (var sr = new System.IO.StreamReader(throttlePosit, new System.Text.UTF8Encoding(false)))
                 detents = (AltLauncher.ThrottlePosition)deserializer.Deserialize(sr);
 
-            int? index = null;
+            int? index = -1;
             Guid? uid = null;
 
             deserializer = new System.Xml.Serialization.XmlSerializer(typeof(AltLauncher.JoyAssgn));

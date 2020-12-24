@@ -39,7 +39,9 @@ namespace bms_burner
             this.lblIdle = new System.Windows.Forms.Label();
             this.grpThrottleValues = new System.Windows.Forms.GroupBox();
             this.lblAfterburner = new System.Windows.Forms.Label();
+            this.picBurner = new System.Windows.Forms.PictureBox();
             this.grpThrottleValues.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picBurner)).BeginInit();
             this.SuspendLayout();
             // 
             // lblBMSLocation
@@ -53,14 +55,17 @@ namespace bms_burner
             // 
             // txtBMSLocation
             // 
+            this.txtBMSLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBMSLocation.Location = new System.Drawing.Point(96, 12);
             this.txtBMSLocation.Name = "txtBMSLocation";
-            this.txtBMSLocation.Size = new System.Drawing.Size(295, 20);
+            this.txtBMSLocation.Size = new System.Drawing.Size(170, 20);
             this.txtBMSLocation.TabIndex = 1;
             // 
             // btnBMSLocationBrowse
             // 
-            this.btnBMSLocationBrowse.Location = new System.Drawing.Point(397, 10);
+            this.btnBMSLocationBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBMSLocationBrowse.Location = new System.Drawing.Point(272, 10);
             this.btnBMSLocationBrowse.Name = "btnBMSLocationBrowse";
             this.btnBMSLocationBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBMSLocationBrowse.TabIndex = 2;
@@ -71,18 +76,20 @@ namespace bms_burner
             // dlgBMSLocation
             // 
             this.dlgBMSLocation.CheckFileExists = false;
+            this.dlgBMSLocation.CheckPathExists = false;
             this.dlgBMSLocation.FileName = "BMS Directory";
             this.dlgBMSLocation.ValidateNames = false;
             // 
             // timer
             // 
+            this.timer.Interval = 16;
             this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
             // lblThrottleReading
             // 
             this.lblThrottleReading.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblThrottleReading.AutoSize = true;
-            this.lblThrottleReading.Location = new System.Drawing.Point(6, 84);
+            this.lblThrottleReading.Location = new System.Drawing.Point(6, 96);
             this.lblThrottleReading.Name = "lblThrottleReading";
             this.lblThrottleReading.Size = new System.Drawing.Size(117, 13);
             this.lblThrottleReading.TabIndex = 3;
@@ -92,7 +99,7 @@ namespace bms_burner
             // 
             this.lblIdle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblIdle.AutoSize = true;
-            this.lblIdle.Location = new System.Drawing.Point(6, 28);
+            this.lblIdle.Location = new System.Drawing.Point(6, 30);
             this.lblIdle.Name = "lblIdle";
             this.lblIdle.Size = new System.Drawing.Size(97, 13);
             this.lblIdle.TabIndex = 4;
@@ -105,7 +112,7 @@ namespace bms_burner
             this.grpThrottleValues.Controls.Add(this.lblIdle);
             this.grpThrottleValues.Location = new System.Drawing.Point(12, 39);
             this.grpThrottleValues.Name = "grpThrottleValues";
-            this.grpThrottleValues.Size = new System.Drawing.Size(200, 100);
+            this.grpThrottleValues.Size = new System.Drawing.Size(200, 128);
             this.grpThrottleValues.TabIndex = 5;
             this.grpThrottleValues.TabStop = false;
             this.grpThrottleValues.Text = "Throttle Values";
@@ -114,17 +121,28 @@ namespace bms_burner
             // 
             this.lblAfterburner.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblAfterburner.AutoSize = true;
-            this.lblAfterburner.Location = new System.Drawing.Point(6, 56);
+            this.lblAfterburner.Location = new System.Drawing.Point(6, 63);
             this.lblAfterburner.Name = "lblAfterburner";
             this.lblAfterburner.Size = new System.Drawing.Size(132, 13);
             this.lblAfterburner.TabIndex = 5;
             this.lblAfterburner.Text = "Afterburner detent: <TBD>";
             // 
+            // picBurner
+            // 
+            this.picBurner.ErrorImage = null;
+            this.picBurner.Image = global::bms_burner.Properties.Resources.Engine;
+            this.picBurner.Location = new System.Drawing.Point(219, 39);
+            this.picBurner.Name = "picBurner";
+            this.picBurner.Size = new System.Drawing.Size(128, 128);
+            this.picBurner.TabIndex = 6;
+            this.picBurner.TabStop = false;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 450);
+            this.ClientSize = new System.Drawing.Size(359, 361);
+            this.Controls.Add(this.picBurner);
             this.Controls.Add(this.btnBMSLocationBrowse);
             this.Controls.Add(this.txtBMSLocation);
             this.Controls.Add(this.lblBMSLocation);
@@ -134,6 +152,7 @@ namespace bms_burner
             this.Text = "BMS Burner";
             this.grpThrottleValues.ResumeLayout(false);
             this.grpThrottleValues.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picBurner)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -150,6 +169,7 @@ namespace bms_burner
         private System.Windows.Forms.Label lblIdle;
         private System.Windows.Forms.GroupBox grpThrottleValues;
         private System.Windows.Forms.Label lblAfterburner;
+        private System.Windows.Forms.PictureBox picBurner;
     }
 }
 
