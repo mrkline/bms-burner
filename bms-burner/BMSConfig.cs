@@ -13,7 +13,7 @@ namespace bms_burner
         public int IdleDetent { get; set; }
         public int AfterburnerDetent { get; set; }
         public Guid ThrottleDeviceGUID { get; set; }
-        public int ThrottleAxisIndex { get; set; }
+        public Func<JoystickState, int> AxisDelegate { get; set; }
 
         /// <summary>
         /// TODO: Reading straight from axismapping.dat would be nice...
@@ -36,7 +36,7 @@ namespace bms_burner
             using (var sr = new System.IO.StreamReader(throttlePosit, new System.Text.UTF8Encoding(false)))
                 detents = (AltLauncher.ThrottlePosition)deserializer.Deserialize(sr);
 
-            int? index = -1;
+            int index = -1;
             Guid? uid = null;
 
             deserializer = new System.Xml.Serialization.XmlSerializer(typeof(AltLauncher.JoyAssgn));
@@ -57,12 +57,42 @@ namespace bms_burner
                 }
             }
 
+            if (index < 0)
+            {
+                throw new Exception("Throttle axis not found!");
+            }
+
+            Func<JoystickState, int> axisMapper = delegate (JoystickState js)
+            {
+                // From the Alt launcher:
+                // [0]=X
+                // [1]=Y
+                // [2]=Z
+                // [3]=Rx
+                // [4]=Ry
+                // [5]=Rz
+                // [6]=Slider0
+                // [7]=Slider1
+                switch (index)
+                {
+                    case 0: return js.X;
+                    case 1: return js.Y;
+                    case 2: return js.Z;
+                    case 3: return js.RotationX;
+                    case 4: return js.RotationY;
+                    case 5: return js.RotationZ;
+                    case 6: return js.Sliders[0];
+                    case 7: return js.Sliders[1];
+                    default: throw new IndexOutOfRangeException("Unknown axis index from Alt Launcher settings");
+                }
+            };
+
             var config = new BMSConfig
             {
                 IdleDetent = detents.IDLE,
                 AfterburnerDetent = detents.AB,
                 ThrottleDeviceGUID = uid.Value,
-                ThrottleAxisIndex = index.Value
+                AxisDelegate = axisMapper
             };
             return config;
         }

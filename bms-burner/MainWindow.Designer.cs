@@ -59,6 +59,7 @@ namespace bms_burner
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBMSLocation.Location = new System.Drawing.Point(96, 12);
             this.txtBMSLocation.Name = "txtBMSLocation";
+            this.txtBMSLocation.ReadOnly = true;
             this.txtBMSLocation.Size = new System.Drawing.Size(170, 20);
             this.txtBMSLocation.TabIndex = 1;
             // 
@@ -141,7 +142,7 @@ namespace bms_burner
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 361);
+            this.ClientSize = new System.Drawing.Size(359, 180);
             this.Controls.Add(this.picBurner);
             this.Controls.Add(this.btnBMSLocationBrowse);
             this.Controls.Add(this.txtBMSLocation);
@@ -149,7 +150,7 @@ namespace bms_burner
             this.Controls.Add(this.grpThrottleValues);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainWindow";
-            this.Text = "BMS Burner";
+            this.Text = "BMS Burner Sounds";
             this.grpThrottleValues.ResumeLayout(false);
             this.grpThrottleValues.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBurner)).EndInit();

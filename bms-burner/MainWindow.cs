@@ -37,17 +37,18 @@ namespace bms_burner
         private void btnBMSLocationBrowse_Click(object sender, EventArgs e) 
         {
             if (dlgBMSLocation.ShowDialog() != DialogResult.OK) return;
+            var dirPath = Path.GetDirectoryName(dlgBMSLocation.FileName);
 
             try
             {
-                var dirPath = Path.GetDirectoryName(dlgBMSLocation.FileName);
                 txtBMSLocation.Text = dirPath;
 
                 bmsConfig = BMSConfig.FromAltLauncherConfig(dirPath + "/User/Config");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error reading BMS Config", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Error reading BMS Config from " + dirPath, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
             lblIdle.Text = "Idle detent: " + ValueAndPercentage(bmsConfig.IdleDetent);
@@ -71,11 +72,15 @@ namespace bms_burner
 
             var isWet = current >= bmsConfig.AfterburnerDetent;
 
-            picBurner.Image = isWet ? Properties.Resources.Burner : Properties.Resources.Engine;
-
+            // Set the image only on transitions, since setting it each tick generates a crapton of garbage.
             if (!wasWet && isWet)
             {
+                picBurner.Image = Properties.Resources.Burner;
                 player.Start();
+            }
+            else if (wasWet && !isWet)
+            {
+                picBurner.Image = Properties.Resources.Engine;
             }
 
             wasWet = isWet;
