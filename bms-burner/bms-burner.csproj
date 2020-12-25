@@ -79,6 +79,7 @@
     <Compile Include="AltLauncher\JoyAssgn.cs" />
     <Compile Include="BMSConfig.cs" />
     <Compile Include="BMSData.cs" />
+    <Compile Include="JoystickAxis.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
