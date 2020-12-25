@@ -107,9 +107,7 @@ namespace bms_burner
             throttle.GetCurrentState(ref throttleState);
 
             // It's inverted, for some odd reason.
-            var current = MAXIN - throttleState.X;
-
-            var current2 = MAXIN - bmsConfig.AxisDelegate(throttleState);
+            var current = MAXIN - bmsConfig.AxisDelegate(throttleState);
 
             lblThrottleReading.Text = "Throttle value: " + ValueAndPercentage(current);
 
