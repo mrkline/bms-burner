@@ -40,6 +40,7 @@ namespace bms_burner
             this.grpThrottleValues = new System.Windows.Forms.GroupBox();
             this.lblAfterburner = new System.Windows.Forms.Label();
             this.picBurner = new System.Windows.Forms.PictureBox();
+            this.ABConfig = new System.Windows.Forms.Button();
             this.grpThrottleValues.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBurner)).BeginInit();
             this.SuspendLayout();
@@ -111,7 +112,7 @@ namespace bms_burner
             this.grpThrottleValues.Controls.Add(this.lblAfterburner);
             this.grpThrottleValues.Controls.Add(this.lblThrottleReading);
             this.grpThrottleValues.Controls.Add(this.lblIdle);
-            this.grpThrottleValues.Location = new System.Drawing.Point(12, 39);
+            this.grpThrottleValues.Location = new System.Drawing.Point(12, 69);
             this.grpThrottleValues.Name = "grpThrottleValues";
             this.grpThrottleValues.Size = new System.Drawing.Size(200, 128);
             this.grpThrottleValues.TabIndex = 5;
@@ -132,17 +133,28 @@ namespace bms_burner
             // 
             this.picBurner.ErrorImage = null;
             this.picBurner.Image = global::bms_burner.Properties.Resources.Engine;
-            this.picBurner.Location = new System.Drawing.Point(219, 39);
+            this.picBurner.Location = new System.Drawing.Point(218, 69);
             this.picBurner.Name = "picBurner";
             this.picBurner.Size = new System.Drawing.Size(128, 128);
             this.picBurner.TabIndex = 6;
             this.picBurner.TabStop = false;
             // 
+            // ABConfig
+            // 
+            this.ABConfig.Location = new System.Drawing.Point(16, 40);
+            this.ABConfig.Name = "ABConfig";
+            this.ABConfig.Size = new System.Drawing.Size(163, 23);
+            this.ABConfig.TabIndex = 7;
+            this.ABConfig.Text = "Configure Afterburner Window";
+            this.ABConfig.UseVisualStyleBackColor = true;
+            this.ABConfig.Click += new System.EventHandler(this.ABConfig_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 180);
+            this.ClientSize = new System.Drawing.Size(359, 225);
+            this.Controls.Add(this.ABConfig);
             this.Controls.Add(this.picBurner);
             this.Controls.Add(this.btnBMSLocationBrowse);
             this.Controls.Add(this.txtBMSLocation);
@@ -171,6 +183,7 @@ namespace bms_burner
         private System.Windows.Forms.GroupBox grpThrottleValues;
         private System.Windows.Forms.Label lblAfterburner;
         private System.Windows.Forms.PictureBox picBurner;
+        private System.Windows.Forms.Button ABConfig;
     }
 }
 

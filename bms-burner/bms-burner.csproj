@@ -68,9 +68,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AfterburnerIndicator.cs" />
+    <Compile Include="AfterburnerWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AfterburnerWindow.Designer.cs">
+      <DependentUpon>AfterburnerWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="AltLauncher\AxAssgn.cs" />
     <Compile Include="AltLauncher\JoyAssgn.cs" />
     <Compile Include="BMSConfig.cs" />
+    <Compile Include="BMSData.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,6 +88,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AltLauncher\ThrottlePosition.cs" />
+    <Compile Include="ScreenLocation.cs" />
+    <EmbeddedResource Include="AfterburnerWindow.resx">
+      <DependentUpon>AfterburnerWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </EmbeddedResource>
