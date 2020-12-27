@@ -10,8 +10,10 @@ namespace bms_burner
 {
     class BMSConfig
     {
+        public const int MAXIN = 65536;
+
         public int IdleDetent { get; set; } = 0;
-        public int AfterburnerDetent { get; set; } = MainWindow.MAXIN;
+        public int AfterburnerDetent { get; set; } = MAXIN;
         public Guid ThrottleDeviceGUID { get; set; }
         public Func<JoystickState, int> AxisDelegate { get; set; }
 

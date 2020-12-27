@@ -19,54 +19,48 @@ namespace bms_burner
 {
     public partial class MainWindow : Form
     {
-        private Timer bmsPoller;
-        private bool isBMSRunning = false;
-        private const String BMS_REG_PATH = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Benchmark Sims\\Falcon BMS 4.35";
+        // Machinery for polling BMS shared memory and determining if we're in 3D
+        private Timer bmsPoll;
+        private IntPtr bmsMapHandle = IntPtr.Zero;
+        private IntPtr bmsMapping = IntPtr.Zero;
+        private BMSData bmsData;
+        private bool in3D = false;
+
+        // Configuration loaded from BMS (or the Alternative Launcher)
+        // and DirectInput machinery for actually reading the throttle.
         private BMSConfig bmsConfig = null;
         private DirectInput input = new SharpDX.DirectInput.DirectInput();
         private Joystick throttle = null;
         private JoystickState throttleState = new JoystickState();
-        public const int MAXIN = 65536;
-        private const int BMS_POLLER_INTERVAL = 1000;
-        private bool wasWet = false;
-        public String BMSPath;
+        private bool isWet = false;
 
         private Process player = new Process();
-        private AfterburnerIndicator ABIndicator;
+        private AfterburnerOverlay overlay;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            bmsPoller = new Timer();
-            bmsPoller.Interval = BMS_POLLER_INTERVAL;
-            bmsPoller.Tick += bmsPoller_Tick;
+            bmsPoll = new Timer();
+            bmsPoll.Interval = 1000;
+            bmsPoll.Tick += bmsPoll_Tick;
 
-            BMSPath = (String)Registry.GetValue(BMS_REG_PATH, "baseDir", "");
-            this.txtBMSLocation.Text = BMSPath;
+            const String BMS_REG_PATH = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Benchmark Sims\\Falcon BMS 4.35";
+            this.txtBMSLocation.Text = (String)Registry.GetValue(BMS_REG_PATH, "baseDir", "");
             loadBMSConfig();
+
             player.StartInfo.UseShellExecute = false;
             player.StartInfo.FileName = "mpv.exe";
             player.StartInfo.Arguments = "--force-window=no ./blowers.ogg";
 
-            if (File.Exists("ABWindow.xml"))
-            {
-                var deserializer = new System.Xml.Serialization.XmlSerializer(typeof(AfterburnerIndicator));
-                var sr = new System.IO.StreamReader("ABWindow.xml", new System.Text.UTF8Encoding(false));
-                ABIndicator = (AfterburnerIndicator)deserializer.Deserialize(sr);
-            }
-            else
-            {
-                ABIndicator = new AfterburnerIndicator();
-            }
-
+            overlay = AfterburnerOverlay.LoadOrDefault();
+            chkOverlayEnabled.Checked = overlay.Enabled;
         }
 
         private void btnBMSLocationBrowse_Click(object sender, EventArgs e) 
         {
             if (dlgBMSLocation.ShowDialog() != DialogResult.OK) return;
-            BMSPath = Path.GetDirectoryName(dlgBMSLocation.FileName);
-            txtBMSLocation.Text = BMSPath;
+            txtBMSLocation.Text = Path.GetDirectoryName(dlgBMSLocation.FileName);
             loadBMSConfig();
         }
 
@@ -74,13 +68,11 @@ namespace bms_burner
         {
             try
             {
-                txtBMSLocation.Text = BMSPath;
-
-                bmsConfig = BMSConfig.FromAltLauncherConfig(BMSPath + "/User/Config");
+                bmsConfig = BMSConfig.FromAltLauncherConfig(txtBMSLocation.Text + "/User/Config");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error reading BMS Config from " + BMSPath, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Error reading BMS Config from " + txtBMSLocation.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -91,65 +83,86 @@ namespace bms_burner
             {
                 throttle = new Joystick(input, bmsConfig.ThrottleDeviceGUID);
                 throttle.Acquire();
-                bmsPoller.Start();
-                timer.Start();
+                bmsPoll.Start();
+                throttlePoll.Start();
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("No throttle found", "WARNING", MessageBoxButtons.OK);
             }
         }
 
-        private void timer_Tick(object sender, EventArgs e)
+        private void throttlePoll_tick(object sender, EventArgs e)
         {
             if (throttle == null) return;
             throttle.GetCurrentState(ref throttleState);
 
             // It's inverted, for some odd reason.
-            var current = MAXIN - bmsConfig.AxisDelegate(throttleState);
+            var current = BMSConfig.MAXIN - bmsConfig.AxisDelegate(throttleState);
 
             lblThrottleReading.Text = "Throttle value: " + ValueAndPercentage(current);
 
-            var isWet = current >= bmsConfig.AfterburnerDetent;
+            bool wasWet = isWet;
+            isWet = current >= bmsConfig.AfterburnerDetent;
 
             // Set the image only on transitions, since setting it each tick generates a crapton of garbage.
             if (!wasWet && isWet)
             {
                 picBurner.Image = Properties.Resources.Burner;
-                //player.Start();
+                if (in3D)
+                {
+                    player.Start();
+                    overlay.BurnersOn();
+                }
             }
             else if (wasWet && !isWet)
             {
                 picBurner.Image = Properties.Resources.Engine;
+                if (in3D)
+                {
+                    overlay.BurnersOff();
+                }
             }
 
             wasWet = isWet;
         }
 
-        private void bmsPoller_Tick(object sender, EventArgs e)
+        private void bmsPoll_Tick(object sender, EventArgs e)
         {
-            if (throttle == null) return;
-            if (!isBMSRunning && Process.GetProcessesByName("Falcon BMS").Length > 0)
-            {
-                isBMSRunning = true;
-                ABIndicator.Execute(bmsConfig.AxisDelegate, bmsConfig.AfterburnerDetent, throttle);
-            }
+            bool wasIn3D = in3D;
 
-            if (isBMSRunning)
-            {
-                IntPtr tmpPointer = OpenFileMapping(0x0004, false, "FalconSharedMemoryArea");
-                IntPtr mmfPointer = MapViewOfFile(tmpPointer, 0x0004, 0, 0, 0);
-                BMSData data = (BMSData)Convert.ChangeType(Marshal.PtrToStructure(mmfPointer, typeof(BMSData)), typeof(BMSData));
-                bool isBMS3d = (data.hsiBits & 0x80000000) == 0x80000000;
-                ABIndicator.onBMSPoll(isBMS3d);
-            }
+            UpdateBMSMapping();
+            in3D = (bmsData.hsiBits & 0x80000000) != 0;
 
+            if (!wasIn3D && in3D) overlay.Entering3D();
+            else if (wasIn3D && !in3D) overlay.Leaving3D();
+        }
+
+        private void UpdateBMSMapping()
+        {
+            if (!Process.GetProcessesByName("Falcon BMS").Any() && bmsMapping != IntPtr.Zero)
+            {
+                UnmapViewOfFile(bmsMapping);
+                Trace.Assert(bmsMapHandle != IntPtr.Zero);
+                CloseHandle(bmsMapHandle);
+
+                bmsMapping = IntPtr.Zero;
+                bmsMapHandle = IntPtr.Zero;
+            }
+            else if (bmsMapping == IntPtr.Zero)
+            {
+                Trace.Assert(bmsMapHandle == IntPtr.Zero);
+                bmsMapHandle = OpenFileMapping(0x0004, false, "FalconSharedMemoryArea");
+                bmsMapping = MapViewOfFile(bmsMapHandle, 0x0004, 0, 0, 0);
+            }
+            if (bmsMapping == IntPtr.Zero) bmsData = new BMSData();
+            else bmsData = (BMSData)Marshal.PtrToStructure(bmsMapping, typeof(BMSData));
         }
 
         private static String ValueAndPercentage(int val)
         {
-            var percent = ((double)val / (double)MAXIN) * 100;
+            var percent = ((double)val / (double)BMSConfig.MAXIN) * 100;
             return String.Format("{0} ({1:D2}%)", val, (int)percent);
         }
 
@@ -163,9 +176,21 @@ namespace bms_burner
            dwDesiredAccess, uint dwFileOffsetHigh, uint dwFileOffsetLow,
            uint dwNumberOfBytesToMap);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool UnmapViewOfFile(IntPtr lpBaseAddress);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool CloseHandle(IntPtr hObject);
+
         private void ABConfig_Click(object sender, EventArgs e)
         {
-            ABIndicator = AfterburnerWindow.ShowAfterburnerWindow(ABIndicator);
+            overlay = wndAfterburner.ShowAfterburnerWindow(overlay);
+        }
+
+        private void chkOverlayEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            btnConfigureOverlay.Visible = chkOverlayEnabled.Checked;
+            overlay.Enabled = chkOverlayEnabled.Checked;
         }
     }
 }
