@@ -75,8 +75,6 @@
     <Compile Include="OverlayConfigurationWindow.Designer.cs">
       <DependentUpon>OverlayConfigurationWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="AltLauncher\AxAssgn.cs" />
-    <Compile Include="AltLauncher\JoyAssgn.cs" />
     <Compile Include="BMSConfig.cs" />
     <Compile Include="BMSData.cs" />
     <Compile Include="JoystickAxis.cs" />
@@ -88,7 +86,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AltLauncher\ThrottlePosition.cs" />
     <Compile Include="ScreenLocation.cs" />
     <EmbeddedResource Include="OverlayConfigurationWindow.resx">
       <DependentUpon>OverlayConfigurationWindow.cs</DependentUpon>

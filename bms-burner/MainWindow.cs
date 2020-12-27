@@ -68,7 +68,7 @@ namespace bms_burner
         {
             try
             {
-                bmsConfig = BMSConfig.FromAltLauncherConfig(txtBMSLocation.Text + "/User/Config");
+                bmsConfig = BMSConfig.ConfigFromBMS(txtBMSLocation.Text + "/User/Config");
             }
             catch (Exception ex)
             {
