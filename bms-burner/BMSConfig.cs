@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-
+using System.Text.RegularExpressions;
 using SharpDX.DirectInput;
 
 namespace bms_burner
@@ -15,8 +15,6 @@ namespace bms_burner
         public Guid ThrottleDeviceGUID { get; set; }
         public Func<JoystickState, int> AxisDelegate { get; set; }
 
-        //TODO: look at devicesorting.txt, it might have more information on which joystick to grab
-
         /// <summary>
         /// Load throttle settings from BMS's axismapping.dat and joystick.cal
         /// </summary>
@@ -25,6 +23,10 @@ namespace bms_burner
         {
             byte[] axisMappingFile = File.ReadAllBytes(Path.Combine(configDirectory, "axismapping.dat"));
             byte[] joystickConfigFile = File.ReadAllBytes(Path.Combine(configDirectory, "joystick.cal"));
+            Guid[] devices = File.ReadAllLines(Path.Combine(configDirectory, "devicesorting.txt"))
+                .Select(line => Regex.Match(line, "{(.+)}").Groups[1].Value)
+                .Select(str => Guid.Parse(str))
+                .ToArray();
 
             // Most of this is reverse-engineered from undocumented
             // byte slinging in the Alternative Launcher. Better docs welcome.
@@ -43,8 +45,8 @@ namespace bms_burner
             // In BMS 4.35, the axis order is Pitch, Roll, Yaw, Throttle...
             byte[] throttleBytes = new byte[16];
             Array.Copy(axisMappingFile, 72, throttleBytes, 0, 16);
-            int deviceNum = throttleBytes[0];
-            if (deviceNum < 2)
+            int deviceNum = throttleBytes[0] - 2;
+            if (deviceNum < 0 || deviceNum >= devices.Length)
                 return null;
             int index = throttleBytes[4];
 
@@ -73,12 +75,7 @@ namespace bms_burner
                 }
             }
 
-            var din = new DirectInput();
-            var lst = din.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AllDevices);
-            if (!lst.Any())
-                return null;
-            // Again, the weird +2 (mouse & keyboard?)
-            Guid uid = lst[deviceNum - 2].InstanceGuid;
+            Guid uid = devices[deviceNum];
 
             // joystick.cal has 24-byte entries for each axis.
             // In BMS 4.35, the axis order is Pitch, Roll, Yaw, Throttle...
