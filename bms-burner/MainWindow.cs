@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Media;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using SharpDX.DirectInput;
@@ -21,12 +14,13 @@ namespace bms_burner
     {
         // Machinery for polling BMS shared memory and determining if we're in 3D
         private readonly Timer bmsPoll;
-        private IntPtr bmsMapHandle = IntPtr.Zero;
-        private IntPtr bmsMapping = IntPtr.Zero;
         private BMSData bmsData;
         private bool in3D = false;
+        // Related native WinAPI nonsense
+        private IntPtr bmsMapHandle = IntPtr.Zero;
+        private IntPtr bmsMapping = IntPtr.Zero;
 
-        // Configuration loaded from BMS (or the Alternative Launcher)
+        // Configuration loaded from BMS
         // and DirectInput machinery for actually reading the throttle.
         private BMSConfig bmsConfig = null;
         private readonly DirectInput input = new SharpDX.DirectInput.DirectInput();
@@ -34,7 +28,12 @@ namespace bms_burner
         private JoystickState throttleState = new JoystickState();
         private bool isWet = false;
 
+        // Apparently .NET doesn't provide any media support out of the box
+        // except for playing .wav files.
+        // To play a sound, we bundle MPV and run it.
+        // TODO: Do something less hokey and dumb to play sound.
         private readonly Process player = new Process();
+
         private AfterburnerOverlay overlay;
 
         public MainWindow()
@@ -47,6 +46,7 @@ namespace bms_burner
             };
             bmsPoll.Tick += bmsPoll_Tick;
 
+            // Try to populate the BMS location from its registry entry.
             const String BMS_REG_PATH = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Benchmark Sims\\Falcon BMS 4.35";
             this.txtBMSLocation.Text = (String)Registry.GetValue(BMS_REG_PATH, "baseDir", "");
             loadBMSConfig();
@@ -86,11 +86,10 @@ namespace bms_burner
                 throttle.Acquire();
                 bmsPoll.Start();
                 throttlePoll.Start();
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("No throttle found", "WARNING", MessageBoxButtons.OK);
+                MessageBox.Show(ex.Message, "No throttle found", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -107,9 +106,11 @@ namespace bms_burner
             bool wasWet = isWet;
             isWet = current >= bmsConfig.AfterburnerDetent;
 
-            // Set the image only on transitions, since setting it each tick generates a crapton of garbage.
             if (!wasWet && isWet)
             {
+                // Set the image only on transitions, since setting it each tick
+                // generates a crapton of garbage.
+                // (Does it reload the file each time?)
                 picBurner.Image = Properties.Resources.Burner;
                 if (in3D)
                 {
@@ -143,7 +144,16 @@ namespace bms_burner
 
         private void UpdateBMSMapping()
         {
-            if (!Process.GetProcessesByName("Falcon BMS").Any() && bmsMapping != IntPtr.Zero)
+            // If we havn't yet, try opening the BMS shared memory.
+            if (bmsMapping == IntPtr.Zero)
+            {
+                Trace.Assert(bmsMapHandle == IntPtr.Zero);
+                bmsMapHandle = OpenFileMapping(0x0004, false, "FalconSharedMemoryArea");
+                // Gracefully returns IntPtr.Zero if bmsMapHandle is zero.
+                bmsMapping = MapViewOfFile(bmsMapHandle, 0x0004, 0, 0, 0);
+            }
+            // If BMS stopped running, unmap the shared memory.
+            else if (!Process.GetProcessesByName("Falcon BMS").Any())
             {
                 UnmapViewOfFile(bmsMapping);
                 Trace.Assert(bmsMapHandle != IntPtr.Zero);
@@ -152,16 +162,17 @@ namespace bms_burner
                 bmsMapping = IntPtr.Zero;
                 bmsMapHandle = IntPtr.Zero;
             }
-            else if (bmsMapping == IntPtr.Zero)
-            {
-                Trace.Assert(bmsMapHandle == IntPtr.Zero);
-                bmsMapHandle = OpenFileMapping(0x0004, false, "FalconSharedMemoryArea");
-                bmsMapping = MapViewOfFile(bmsMapHandle, 0x0004, 0, 0, 0);
-            }
+
+            // If the shared memory isn't mapped, zero out bmsData.
             if (bmsMapping == IntPtr.Zero) bmsData = new BMSData();
+            // If it is mapped, grab a copy of the data!
             else bmsData = (BMSData)Marshal.PtrToStructure(bmsMapping, typeof(BMSData));
         }
 
+        /// <summary>
+        /// Convert the given joystick value into a string
+        /// of itself and a percentage of the max value.
+        /// </summary>
         private static String ValueAndPercentage(int val)
         {
             var percent = ((double)val / (double)BMSConfig.MAXIN) * 100;

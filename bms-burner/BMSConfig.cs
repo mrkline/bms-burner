@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 using SharpDX.DirectInput;
 
@@ -19,9 +17,13 @@ namespace bms_burner
 
         //TODO: look at devicesorting.txt, it might have more information on which joystick to grab
 
+        /// <summary>
+        /// Load throttle settings from BMS's axismapping.dat and joystick.cal
+        /// </summary>
+        /// <param name="configDirectory">BMS/User/Config</param>
         public static BMSConfig ConfigFromBMS(string configDirectory)
         {
-            byte[] axisMappingFile = File.ReadAllBytes(Path.Combine(configDirectory, "axisMapping.dat"));
+            byte[] axisMappingFile = File.ReadAllBytes(Path.Combine(configDirectory, "axismapping.dat"));
             byte[] joystickConfigFile = File.ReadAllBytes(Path.Combine(configDirectory, "joystick.cal"));
 
             // Most of this is reverse-engineered from undocumented
@@ -46,7 +48,7 @@ namespace bms_burner
                 return null;
             int index = throttleBytes[4];
 
-            Func<JoystickState, int> axisMapper = delegate (JoystickState js)
+            int axisMapper(JoystickState js)
             {
                 // From the Alt launcher:
                 // [0]=X
@@ -69,7 +71,7 @@ namespace bms_burner
                     case 7: return js.Sliders[1];
                     default: throw new IndexOutOfRangeException("Unknown axis index from axismapping.dat");
                 }
-            };
+            }
 
             var din = new DirectInput();
             var lst = din.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AllDevices);
