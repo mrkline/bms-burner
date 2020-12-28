@@ -51,7 +51,6 @@ namespace bms_burner
 
             player.StartInfo.UseShellExecute = false;
             player.StartInfo.FileName = "mpv.exe";
-            player.StartInfo.Arguments = "--force-window=no ./blowers.ogg";
 
             overlay = AfterburnerOverlay.LoadOrDefault();
             chkOverlayEnabled.Checked = overlay.Enabled;
@@ -112,6 +111,7 @@ namespace bms_burner
                 picBurner.Image = Properties.Resources.Burner;
                 if (in3D)
                 {
+                    player.StartInfo.Arguments = "--force-window=no ./burners-on.ogg";
                     player.Start();
                     overlay.BurnersOn();
                 }
@@ -121,6 +121,8 @@ namespace bms_burner
                 picBurner.Image = Properties.Resources.Engine;
                 if (in3D)
                 {
+                    player.StartInfo.Arguments = "--force-window=no ./burners-off.ogg";
+                    player.Start();
                     overlay.BurnersOff();
                 }
             }
