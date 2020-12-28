@@ -32,12 +32,19 @@ and shove it in the working directory.
 
 If you want to make this slightly less stupid, you could
 
-- Add options to the overlay window
-   - Make it draggable
-   - Add color customization
+- [x] Read the throttle axis and detent settings out of BMS's `axismapping.dat`
+      directly so this doesn't depend on the Alternate Launcher.
 
-- Make the sound to play configurable (instead of a hardcoded `blowers.ogg`)
+- [x] Read the BMS shared memory to only play sounds when you're in the pit.
 
-- Add an option to play a sound continuously while the burners are on
+- [x] Find the BMS directory automatically (registry entries?)
 
-- Come up with a less stupid way to play sound
+- [ ] Add options to the overlay window
+  - Make it draggable
+  - Add color customization
+
+- [ ] Make the sound to play configurable (instead of a hardcoded `burners-on/off.ogg`)
+
+- [ ] Add an option to play a sound continuously while the burners are on
+
+- [ ] Come up with a less stupid way to play sound
