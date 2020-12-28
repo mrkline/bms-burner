@@ -20,7 +20,7 @@ namespace bms_burner
     public partial class MainWindow : Form
     {
         // Machinery for polling BMS shared memory and determining if we're in 3D
-        private Timer bmsPoll;
+        private readonly Timer bmsPoll;
         private IntPtr bmsMapHandle = IntPtr.Zero;
         private IntPtr bmsMapping = IntPtr.Zero;
         private BMSData bmsData;
@@ -29,20 +29,22 @@ namespace bms_burner
         // Configuration loaded from BMS (or the Alternative Launcher)
         // and DirectInput machinery for actually reading the throttle.
         private BMSConfig bmsConfig = null;
-        private DirectInput input = new SharpDX.DirectInput.DirectInput();
+        private readonly DirectInput input = new SharpDX.DirectInput.DirectInput();
         private Joystick throttle = null;
         private JoystickState throttleState = new JoystickState();
         private bool isWet = false;
 
-        private Process player = new Process();
+        private readonly Process player = new Process();
         private AfterburnerOverlay overlay;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            bmsPoll = new Timer();
-            bmsPoll.Interval = 1000;
+            bmsPoll = new Timer
+            {
+                Interval = 1000
+            };
             bmsPoll.Tick += bmsPoll_Tick;
 
             const String BMS_REG_PATH = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Benchmark Sims\\Falcon BMS 4.35";
@@ -126,8 +128,6 @@ namespace bms_burner
                     overlay.BurnersOff();
                 }
             }
-
-            wasWet = isWet;
         }
 
         private void bmsPoll_Tick(object sender, EventArgs e)
