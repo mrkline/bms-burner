@@ -72,7 +72,15 @@ namespace bms_burner
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error reading BMS Config from " + txtBMSLocation.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Error reading BMS Config from " + 
+                                txtBMSLocation.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (bmsConfig == null)
+            {
+                MessageBox.Show("No input devices found, or no throttle bound. " +
+                                "Please make sure your throttle is bound in BMS and plugged in");
                 return;
             }
 
@@ -83,13 +91,16 @@ namespace bms_burner
             {
                 throttle = new Joystick(input, bmsConfig.ThrottleDeviceGUID);
                 throttle.Acquire();
+                StreamWriter sw = new StreamWriter("out.txt", append: true);
+                sw.WriteLine("Acquired throttle name is: " + throttle.Properties.ProductName);
+                sw.Close();
                 bmsPoll.Start();
                 throttlePoll.Start();
 
             }
             catch (Exception)
             {
-                MessageBox.Show("No throttle found", "WARNING", MessageBoxButtons.OK);
+                MessageBox.Show("No throttle found matching your BMS throttle binding", "WARNING", MessageBoxButtons.OK);
             }
         }
 

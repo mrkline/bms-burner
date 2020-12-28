@@ -42,6 +42,7 @@ namespace bms_burner
         public AfterburnerOverlay(int width, int height)
         {
             f = new Form();
+            f.MinimumSize = new Size(1, 1);
             f.BackColor = Color.Blue;
             f.FormBorderStyle = FormBorderStyle.None;
             f.Size = new Size(width, height);
