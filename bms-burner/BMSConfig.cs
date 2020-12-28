@@ -10,8 +10,10 @@ namespace bms_burner
 {
     class BMSConfig
     {
-        public int IdleDetent { get; set; }
-        public int AfterburnerDetent { get; set; }
+        public const int MAXIN = 65536;
+
+        public int IdleDetent { get; set; } = 0;
+        public int AfterburnerDetent { get; set; } = MAXIN;
         public Guid ThrottleDeviceGUID { get; set; }
         public Func<JoystickState, int> AxisDelegate { get; set; }
 
@@ -40,7 +42,9 @@ namespace bms_burner
             Guid? uid = null;
 
             deserializer = new System.Xml.Serialization.XmlSerializer(typeof(AltLauncher.JoyAssgn));
-            foreach (var deviceFile in files.Where(p => !p.EndsWith("ThrottlePosition.xml") && !p.EndsWith("MouseWheel.xml")))
+            foreach (var deviceFile in files.Where(p => !p.EndsWith("ThrottlePosition.xml") 
+                                                     && !p.EndsWith("MouseWheel.xml")
+                                                     && !p.EndsWith("AfterburnerIndicator.xml")))
             {
                 var assignments = LoadJoyAssgn(deserializer, deviceFile);
                 for (int i = 0; i < assignments.axis.Length; ++i)

@@ -34,12 +34,14 @@ namespace bms_burner
             this.txtBMSLocation = new System.Windows.Forms.TextBox();
             this.btnBMSLocationBrowse = new System.Windows.Forms.Button();
             this.dlgBMSLocation = new System.Windows.Forms.OpenFileDialog();
-            this.timer = new System.Windows.Forms.Timer(this.components);
+            this.throttlePoll = new System.Windows.Forms.Timer(this.components);
             this.lblThrottleReading = new System.Windows.Forms.Label();
             this.lblIdle = new System.Windows.Forms.Label();
             this.grpThrottleValues = new System.Windows.Forms.GroupBox();
             this.lblAfterburner = new System.Windows.Forms.Label();
             this.picBurner = new System.Windows.Forms.PictureBox();
+            this.btnConfigureOverlay = new System.Windows.Forms.Button();
+            this.chkOverlayEnabled = new System.Windows.Forms.CheckBox();
             this.grpThrottleValues.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBurner)).BeginInit();
             this.SuspendLayout();
@@ -81,10 +83,10 @@ namespace bms_burner
             this.dlgBMSLocation.FileName = "BMS Directory";
             this.dlgBMSLocation.ValidateNames = false;
             // 
-            // timer
+            // throttlePoll
             // 
-            this.timer.Interval = 16;
-            this.timer.Tick += new System.EventHandler(this.timer_Tick);
+            this.throttlePoll.Interval = 16;
+            this.throttlePoll.Tick += new System.EventHandler(this.throttlePoll_tick);
             // 
             // lblThrottleReading
             // 
@@ -111,7 +113,7 @@ namespace bms_burner
             this.grpThrottleValues.Controls.Add(this.lblAfterburner);
             this.grpThrottleValues.Controls.Add(this.lblThrottleReading);
             this.grpThrottleValues.Controls.Add(this.lblIdle);
-            this.grpThrottleValues.Location = new System.Drawing.Point(12, 39);
+            this.grpThrottleValues.Location = new System.Drawing.Point(12, 69);
             this.grpThrottleValues.Name = "grpThrottleValues";
             this.grpThrottleValues.Size = new System.Drawing.Size(200, 128);
             this.grpThrottleValues.TabIndex = 5;
@@ -132,17 +134,41 @@ namespace bms_burner
             // 
             this.picBurner.ErrorImage = null;
             this.picBurner.Image = global::bms_burner.Properties.Resources.Engine;
-            this.picBurner.Location = new System.Drawing.Point(219, 39);
+            this.picBurner.Location = new System.Drawing.Point(218, 69);
             this.picBurner.Name = "picBurner";
             this.picBurner.Size = new System.Drawing.Size(128, 128);
             this.picBurner.TabIndex = 6;
             this.picBurner.TabStop = false;
             // 
+            // btnConfigureOverlay
+            // 
+            this.btnConfigureOverlay.Location = new System.Drawing.Point(80, 39);
+            this.btnConfigureOverlay.Name = "btnConfigureOverlay";
+            this.btnConfigureOverlay.Size = new System.Drawing.Size(116, 23);
+            this.btnConfigureOverlay.TabIndex = 7;
+            this.btnConfigureOverlay.Text = "Configure Overlay...";
+            this.btnConfigureOverlay.UseVisualStyleBackColor = true;
+            this.btnConfigureOverlay.Visible = false;
+            this.btnConfigureOverlay.Click += new System.EventHandler(this.ABConfig_Click);
+            // 
+            // chkOverlayEnabled
+            // 
+            this.chkOverlayEnabled.AutoSize = true;
+            this.chkOverlayEnabled.Location = new System.Drawing.Point(12, 43);
+            this.chkOverlayEnabled.Name = "chkOverlayEnabled";
+            this.chkOverlayEnabled.Size = new System.Drawing.Size(62, 17);
+            this.chkOverlayEnabled.TabIndex = 8;
+            this.chkOverlayEnabled.Text = "Overlay";
+            this.chkOverlayEnabled.UseVisualStyleBackColor = true;
+            this.chkOverlayEnabled.CheckedChanged += new System.EventHandler(this.chkOverlayEnabled_CheckedChanged);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 180);
+            this.ClientSize = new System.Drawing.Size(359, 225);
+            this.Controls.Add(this.chkOverlayEnabled);
+            this.Controls.Add(this.btnConfigureOverlay);
             this.Controls.Add(this.picBurner);
             this.Controls.Add(this.btnBMSLocationBrowse);
             this.Controls.Add(this.txtBMSLocation);
@@ -165,12 +191,14 @@ namespace bms_burner
         private System.Windows.Forms.TextBox txtBMSLocation;
         private System.Windows.Forms.Button btnBMSLocationBrowse;
         private System.Windows.Forms.OpenFileDialog dlgBMSLocation;
-        private System.Windows.Forms.Timer timer;
+        private System.Windows.Forms.Timer throttlePoll;
         private System.Windows.Forms.Label lblThrottleReading;
         private System.Windows.Forms.Label lblIdle;
         private System.Windows.Forms.GroupBox grpThrottleValues;
         private System.Windows.Forms.Label lblAfterburner;
         private System.Windows.Forms.PictureBox picBurner;
+        private System.Windows.Forms.Button btnConfigureOverlay;
+        private System.Windows.Forms.CheckBox chkOverlayEnabled;
     }
 }
 
