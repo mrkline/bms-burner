@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-
+using System.Text.RegularExpressions;
 using SharpDX.DirectInput;
 
 namespace bms_burner
@@ -25,6 +25,12 @@ namespace bms_burner
         {
             byte[] axisMappingFile = File.ReadAllBytes(Path.Combine(configDirectory, "axismapping.dat"));
             byte[] joystickConfigFile = File.ReadAllBytes(Path.Combine(configDirectory, "joystick.cal"));
+            String[] devLst = File.ReadAllLines(Path.Combine(configDirectory, "DeviceSorting.txt"));
+
+            if (!devLst.Any())
+                return null;
+
+            StreamWriter sw = new StreamWriter("out.txt");
 
             // Most of this is reverse-engineered from undocumented
             // byte slinging in the Alternative Launcher. Better docs welcome.
@@ -44,9 +50,11 @@ namespace bms_burner
             byte[] throttleBytes = new byte[16];
             Array.Copy(axisMappingFile, 72, throttleBytes, 0, 16);
             int deviceNum = throttleBytes[0];
+            sw.WriteLine("Device number: " + (deviceNum - 2));
             if (deviceNum < 2)
                 return null;
             int index = throttleBytes[4];
+            sw.WriteLine("Index number: " + index);
 
             int axisMapper(JoystickState js)
             {
@@ -73,12 +81,12 @@ namespace bms_burner
                 }
             }
 
-            var din = new DirectInput();
-            var lst = din.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AllDevices);
-            if (!lst.Any())
-                return null;
+            Regex r = new Regex("{(.+)}");
+
             // Again, the weird +2 (mouse & keyboard?)
-            Guid uid = lst[deviceNum - 2].InstanceGuid;
+            Guid uid = new Guid(r.Match(devLst[deviceNum - 2]).Value);
+            sw.WriteLine("The GUID is: " + uid.ToString() +
+                         " and name is: " + devLst[deviceNum - 2].Substring(40));
 
             // joystick.cal has 24-byte entries for each axis.
             // In BMS 4.35, the axis order is Pitch, Roll, Yaw, Throttle...
@@ -96,6 +104,8 @@ namespace bms_burner
 
             int rawIdleVal = joystickConfigFile[IDLE_LOC_INDEX];
             int idleCutoff = 256 * rawIdleVal * MAXIN / MAXOUT;
+
+            sw.Close();
 
             return new BMSConfig
             {
