@@ -48,7 +48,7 @@ namespace bms_burner
             int deviceNum = throttleBytes[0] - 2;
             if (deviceNum < 0 || deviceNum >= devices.Length)
                 return null;
-            int index = throttleBytes[4];
+            int axisIndex = throttleBytes[4];
 
             int axisMapper(JoystickState js)
             {
@@ -61,7 +61,7 @@ namespace bms_burner
                 // [5]=Rz
                 // [6]=Slider0
                 // [7]=Slider1
-                switch (index)
+                switch (axisIndex)
                 {
                     case 0: return js.X;
                     case 1: return js.Y;
