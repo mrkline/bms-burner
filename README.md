@@ -32,12 +32,9 @@ and shove it in the working directory.
 
 If you want to make this slightly less stupid, you could
 
-- Read the throttle axis and detent settings out of BMS's `axismapping.dat`
-  directly so this doesn't depend on the Alternate Launcher.
-
-- Read the BMS shared memory to only play sounds when you're in the pit.
-
-- Find the BMS directory automatically (registry entries?)
+- Add options to the overlay window
+   - Make it draggable
+   - Add color customization
 
 - Make the sound to play configurable (instead of a hardcoded `blowers.ogg`)
 
