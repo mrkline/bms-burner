@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+
+using Serilog;
 using SharpDX.DirectInput;
 
 namespace bms_burner
@@ -16,7 +18,7 @@ namespace bms_burner
         public Func<JoystickState, int> AxisDelegate { get; set; }
 
         /// <summary>
-        /// Load throttle settings from BMS's axismapping.dat and joystick.cal
+        /// Load throttle settings from BMS's axismapping.dat, DeviceSorting.txt, and joystick.cal
         /// </summary>
         /// <param name="configDirectory">BMS/User/Config</param>
         public static BMSConfig ConfigFromBMS(string configDirectory)
@@ -27,6 +29,9 @@ namespace bms_burner
                 .Select(line => Regex.Match(line, "{(.+)}").Groups[1].Value)
                 .Select(str => Guid.Parse(str))
                 .ToArray();
+
+            Log.Debug("Successfully loaded axismapping.dat, joystick.cal, & devicesorting.txt");
+            Log.Verbose("Device GUIDs from devicesorting.txt: {0}", devices);
 
             // Most of this is reverse-engineered from undocumented
             // byte slinging in the Alternative Launcher. Better docs welcome.
@@ -45,10 +50,24 @@ namespace bms_burner
             // In BMS 4.35, the axis order is Pitch, Roll, Yaw, Throttle...
             byte[] throttleBytes = new byte[16];
             Array.Copy(axisMappingFile, 72, throttleBytes, 0, 16);
+            Log.Verbose("Raw throttle device number (index + 2): {0}", throttleBytes[0]);
             int deviceNum = throttleBytes[0] - 2;
-            if (deviceNum < 0 || deviceNum >= devices.Length)
-                return null;
+
             int axisIndex = throttleBytes[4];
+            Log.Debug("Throttle axis index: {0}", axisIndex);
+
+            if (deviceNum < 0 || deviceNum >= devices.Length)
+            {
+                throw new IndexOutOfRangeException(
+                    String.Format("Device index {0} found in axismapipng.dat, but {1} devices found in devicesorting.txt",
+                        deviceNum, devices.Length
+                    ));
+            }
+            if (axisIndex < 0 || axisIndex > 7)
+            {
+                throw new IndexOutOfRangeException(
+                    String.Format("Axis index from axismapping.dat ({0}) is outside [0, 7]", axisIndex));
+            }
 
             int axisMapper(JoystickState js)
             {
@@ -71,11 +90,13 @@ namespace bms_burner
                     case 5: return js.RotationZ;
                     case 6: return js.Sliders[0];
                     case 7: return js.Sliders[1];
-                    default: throw new IndexOutOfRangeException("Unknown axis index from axismapping.dat");
+                    default: throw new IndexOutOfRangeException(
+                        String.Format("Axis index ({0}) is outside [0, 7]", axisIndex));
                 }
             }
 
             Guid uid = devices[deviceNum];
+            Log.Debug("Throttle GUID: {0}", uid);
 
             // joystick.cal has 24-byte entries for each axis.
             // In BMS 4.35, the axis order is Pitch, Roll, Yaw, Throttle...
@@ -90,9 +111,12 @@ namespace bms_burner
             // Weird scaling...
             int rawABVal = joystickConfigFile[AB_LOC_INDEX];
             int abCutoff = MAXIN - 256 * rawABVal * MAXIN / MAXOUT;
+            Log.Debug("AB detent: {0} ({1} raw)", abCutoff, rawABVal);
+
 
             int rawIdleVal = joystickConfigFile[IDLE_LOC_INDEX];
             int idleCutoff = 256 * rawIdleVal * MAXIN / MAXOUT;
+            Log.Debug("Idle detent: {0} ({1} raw)", idleCutoff, rawIdleVal);
 
             return new BMSConfig
             {

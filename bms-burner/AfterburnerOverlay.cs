@@ -3,6 +3,8 @@ using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
 
+using Serilog;
+
 namespace bms_burner
 {
     public class AfterburnerOverlay
@@ -51,18 +53,25 @@ namespace bms_burner
             // TODO: Ew, XML. JSON? TOML?
             if (File.Exists("AfterburnerOverlay.xml"))
             {
-                var deserializer = new System.Xml.Serialization.XmlSerializer(typeof(AfterburnerOverlay));
-                using (var sr = new System.IO.StreamReader("AfterburnerOverlay.xml", new System.Text.UTF8Encoding(false)))
-                    return (AfterburnerOverlay)deserializer.Deserialize(sr);
+                Log.Information("Found AfterburnerOverlay.xml, deserializing overlay config");
+                try
+                {
+                    var deserializer = new System.Xml.Serialization.XmlSerializer(typeof(AfterburnerOverlay));
+                    using (var sr = new System.IO.StreamReader("AfterburnerOverlay.xml", new System.Text.UTF8Encoding(false)))
+                        return (AfterburnerOverlay)deserializer.Deserialize(sr);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning(ex, "Couldn't deserialize AfterburnerOverlay.xml");
+                    // Fall through to defaults.
+                }
             }
-            else
-            {
-                return new AfterburnerOverlay();
-            }
+            return new AfterburnerOverlay();
         }
 
         public void Save()
         {
+            Log.Information("Saving overlay config to AfterburnerOverlay.xml");
             System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(typeof(AfterburnerOverlay));
             using (var sw = new StreamWriter("AfterburnerOverlay.xml", false, new System.Text.UTF8Encoding(false)))
                 serializer.Serialize(sw, this);
