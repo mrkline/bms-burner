@@ -66,6 +66,7 @@ namespace bms_burner
                     // Fall through to defaults.
                 }
             }
+            Log.Information("Couldn't find (or couldn't deserialize) AfterburnersOverlay.xml, using stock config.");
             return new AfterburnerOverlay();
         }
 
