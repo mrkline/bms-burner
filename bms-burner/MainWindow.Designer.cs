@@ -30,19 +30,23 @@ namespace bms_burner
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.lblBMSLocation = new System.Windows.Forms.Label();
             this.txtBMSLocation = new System.Windows.Forms.TextBox();
             this.btnBMSLocationBrowse = new System.Windows.Forms.Button();
             this.dlgBMSLocation = new System.Windows.Forms.OpenFileDialog();
             this.throttlePoll = new System.Windows.Forms.Timer(this.components);
-            this.lblThrottleReading = new System.Windows.Forms.Label();
-            this.grpThrottleValues = new System.Windows.Forms.GroupBox();
-            this.lblAfterburner = new System.Windows.Forms.Label();
             this.picBurner = new System.Windows.Forms.PictureBox();
             this.btnConfigureOverlay = new System.Windows.Forms.Button();
             this.chkOverlayEnabled = new System.Windows.Forms.CheckBox();
-            this.grpThrottleValues.SuspendLayout();
+            this.grpThrottleValues = new System.Windows.Forms.GroupBox();
+            this.lblThrottleReading = new System.Windows.Forms.Label();
+            this.lblAfterburner = new System.Windows.Forms.Label();
+            this.stripBmsStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
             ((System.ComponentModel.ISupportInitialize)(this.picBurner)).BeginInit();
+            this.grpThrottleValues.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblBMSLocation
@@ -87,43 +91,11 @@ namespace bms_burner
             this.throttlePoll.Interval = 16;
             this.throttlePoll.Tick += new System.EventHandler(this.throttlePoll_tick);
             // 
-            // lblThrottleReading
-            // 
-            this.lblThrottleReading.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblThrottleReading.AutoSize = true;
-            this.lblThrottleReading.Location = new System.Drawing.Point(6, 96);
-            this.lblThrottleReading.Name = "lblThrottleReading";
-            this.lblThrottleReading.Size = new System.Drawing.Size(117, 13);
-            this.lblThrottleReading.TabIndex = 3;
-            this.lblThrottleReading.Text = "<Throttle reading here>";
-            // 
-            // grpThrottleValues
-            // 
-            this.grpThrottleValues.Controls.Add(this.lblAfterburner);
-            this.grpThrottleValues.Controls.Add(this.lblThrottleReading);
-            this.grpThrottleValues.Controls.Add(this.lblIdle);
-            this.grpThrottleValues.Location = new System.Drawing.Point(12, 69);
-            this.grpThrottleValues.Name = "grpThrottleValues";
-            this.grpThrottleValues.Size = new System.Drawing.Size(200, 128);
-            this.grpThrottleValues.TabIndex = 5;
-            this.grpThrottleValues.TabStop = false;
-            this.grpThrottleValues.Text = "Throttle Values";
-            // 
-            // lblAfterburner
-            // 
-            this.lblAfterburner.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblAfterburner.AutoSize = true;
-            this.lblAfterburner.Location = new System.Drawing.Point(6, 63);
-            this.lblAfterburner.Name = "lblAfterburner";
-            this.lblAfterburner.Size = new System.Drawing.Size(132, 13);
-            this.lblAfterburner.TabIndex = 5;
-            this.lblAfterburner.Text = "Afterburner detent: <TBD>";
-            // 
             // picBurner
             // 
             this.picBurner.ErrorImage = null;
             this.picBurner.Image = global::bms_burner.Properties.Resources.Engine;
-            this.picBurner.Location = new System.Drawing.Point(218, 69);
+            this.picBurner.Location = new System.Drawing.Point(219, 39);
             this.picBurner.Name = "picBurner";
             this.picBurner.Size = new System.Drawing.Size(128, 128);
             this.picBurner.TabIndex = 6;
@@ -151,11 +123,60 @@ namespace bms_burner
             this.chkOverlayEnabled.UseVisualStyleBackColor = true;
             this.chkOverlayEnabled.CheckedChanged += new System.EventHandler(this.chkOverlayEnabled_CheckedChanged);
             // 
+            // grpThrottleValues
+            // 
+            this.grpThrottleValues.Controls.Add(this.lblAfterburner);
+            this.grpThrottleValues.Controls.Add(this.lblThrottleReading);
+            this.grpThrottleValues.Location = new System.Drawing.Point(12, 69);
+            this.grpThrottleValues.Name = "grpThrottleValues";
+            this.grpThrottleValues.Size = new System.Drawing.Size(200, 98);
+            this.grpThrottleValues.TabIndex = 5;
+            this.grpThrottleValues.TabStop = false;
+            this.grpThrottleValues.Text = "Throttle Values";
+            // 
+            // lblThrottleReading
+            // 
+            this.lblThrottleReading.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblThrottleReading.AutoSize = true;
+            this.lblThrottleReading.Location = new System.Drawing.Point(6, 59);
+            this.lblThrottleReading.Name = "lblThrottleReading";
+            this.lblThrottleReading.Size = new System.Drawing.Size(117, 13);
+            this.lblThrottleReading.TabIndex = 3;
+            this.lblThrottleReading.Text = "<Throttle reading here>";
+            // 
+            // lblAfterburner
+            // 
+            this.lblAfterburner.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblAfterburner.AutoSize = true;
+            this.lblAfterburner.Location = new System.Drawing.Point(6, 26);
+            this.lblAfterburner.Name = "lblAfterburner";
+            this.lblAfterburner.Size = new System.Drawing.Size(132, 13);
+            this.lblAfterburner.TabIndex = 5;
+            this.lblAfterburner.Text = "Afterburner detent: <TBD>";
+            // 
+            // stripBmsStatus
+            // 
+            this.stripBmsStatus.Name = "stripBmsStatus";
+            this.stripBmsStatus.Size = new System.Drawing.Size(89, 15);
+            this.stripBmsStatus.Text = "BMS Status: Off";
+            // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.stripBmsStatus});
+            this.statusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
+            this.statusStrip.Location = new System.Drawing.Point(0, 173);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(359, 20);
+            this.statusStrip.SizingGrip = false;
+            this.statusStrip.TabIndex = 9;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 225);
+            this.ClientSize = new System.Drawing.Size(359, 193);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.chkOverlayEnabled);
             this.Controls.Add(this.btnConfigureOverlay);
             this.Controls.Add(this.picBurner);
@@ -167,9 +188,11 @@ namespace bms_burner
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainWindow";
             this.Text = "BMS Burner Sounds";
+            ((System.ComponentModel.ISupportInitialize)(this.picBurner)).EndInit();
             this.grpThrottleValues.ResumeLayout(false);
             this.grpThrottleValues.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picBurner)).EndInit();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -182,12 +205,14 @@ namespace bms_burner
         private System.Windows.Forms.Button btnBMSLocationBrowse;
         private System.Windows.Forms.OpenFileDialog dlgBMSLocation;
         private System.Windows.Forms.Timer throttlePoll;
-        private System.Windows.Forms.Label lblThrottleReading;
-        private System.Windows.Forms.GroupBox grpThrottleValues;
-        private System.Windows.Forms.Label lblAfterburner;
         private System.Windows.Forms.PictureBox picBurner;
         private System.Windows.Forms.Button btnConfigureOverlay;
         private System.Windows.Forms.CheckBox chkOverlayEnabled;
+        private System.Windows.Forms.GroupBox grpThrottleValues;
+        private System.Windows.Forms.Label lblAfterburner;
+        private System.Windows.Forms.Label lblThrottleReading;
+        private System.Windows.Forms.ToolStripStatusLabel stripBmsStatus;
+        private System.Windows.Forms.StatusStrip statusStrip;
     }
 }
 

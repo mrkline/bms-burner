@@ -185,11 +185,13 @@ namespace bms_burner
             if (!wasIn3D && in3D)
             {
                 Log.Information("Entering 3D");
+                stripBmsStatus.Text = "BMS Status: In 3D";
                 overlay.Entering3D();
             }
             else if (wasIn3D && !in3D)
             {
                 Log.Information("Leaving 3D");
+                stripBmsStatus.Text = "BMS Status: Running";
                 overlay.Leaving3D();
             }
         }
@@ -207,12 +209,14 @@ namespace bms_burner
                 if (bmsMapping != IntPtr.Zero)
                 {
                     Log.Information("Mapped FalconSharedMemoryArea");
+                    stripBmsStatus.Text = "BMS Status: Running";
                 }
             }
             // If BMS stopped running, unmap the shared memory.
             else if (!Process.GetProcessesByName("Falcon BMS").Any())
             {
                 Log.Information("BMS closed. Unmapping FalconSharedMemoryArea.");
+                stripBmsStatus.Text = "BMS Status: Off";
 
                 UnmapViewOfFile(bmsMapping);
                 Trace.Assert(bmsMapHandle != IntPtr.Zero);
