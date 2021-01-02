@@ -99,7 +99,6 @@ namespace bms_burner
                 return;
             }
 
-            lblIdle.Text = "Idle detent: " + ValueAndPercentage(bmsConfig.IdleDetent);
             lblAfterburner.Text = "Afterburner detent: " + ValueAndPercentage(bmsConfig.AfterburnerDetent);
 
             try

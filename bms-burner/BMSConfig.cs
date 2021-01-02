@@ -12,7 +12,6 @@ namespace bms_burner
     {
         public const int MAXIN = 65536;
 
-        public int IdleDetent { get; set; } = 0;
         public int AfterburnerDetent { get; set; } = MAXIN;
         public Guid ThrottleDeviceGUID { get; set; }
         public Func<JoystickState, int> AxisDelegate { get; set; }
@@ -103,7 +102,6 @@ namespace bms_burner
             // If the axis is the throttle axis, byte 1 is the afterburner detent
             // and byte 5 is the idle detent.
             const int AB_LOC_INDEX = 0x49; // byte which determines the afterburner detent position in joystick.cal
-            const int IDLE_LOC_INDEX = 0x53; //byte which determines the idle position in joystick.cal
 
             const int MAXIN = 65536;
             const int MAXOUT = 14848;
@@ -113,14 +111,8 @@ namespace bms_burner
             int abCutoff = MAXIN - 256 * rawABVal * MAXIN / MAXOUT;
             Log.Debug("AB detent: {0} ({1} raw)", abCutoff, rawABVal);
 
-
-            int rawIdleVal = joystickConfigFile[IDLE_LOC_INDEX];
-            int idleCutoff = 256 * rawIdleVal * MAXIN / MAXOUT;
-            Log.Debug("Idle detent: {0} ({1} raw)", idleCutoff, rawIdleVal);
-
             return new BMSConfig
             {
-                IdleDetent = idleCutoff,
                 AfterburnerDetent = abCutoff,
                 ThrottleDeviceGUID = uid,
                 AxisDelegate = axisMapper

@@ -36,7 +36,6 @@ namespace bms_burner
             this.dlgBMSLocation = new System.Windows.Forms.OpenFileDialog();
             this.throttlePoll = new System.Windows.Forms.Timer(this.components);
             this.lblThrottleReading = new System.Windows.Forms.Label();
-            this.lblIdle = new System.Windows.Forms.Label();
             this.grpThrottleValues = new System.Windows.Forms.GroupBox();
             this.lblAfterburner = new System.Windows.Forms.Label();
             this.picBurner = new System.Windows.Forms.PictureBox();
@@ -97,16 +96,6 @@ namespace bms_burner
             this.lblThrottleReading.Size = new System.Drawing.Size(117, 13);
             this.lblThrottleReading.TabIndex = 3;
             this.lblThrottleReading.Text = "<Throttle reading here>";
-            // 
-            // lblIdle
-            // 
-            this.lblIdle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblIdle.AutoSize = true;
-            this.lblIdle.Location = new System.Drawing.Point(6, 30);
-            this.lblIdle.Name = "lblIdle";
-            this.lblIdle.Size = new System.Drawing.Size(97, 13);
-            this.lblIdle.TabIndex = 4;
-            this.lblIdle.Text = "Idle detent: <TBD>";
             // 
             // grpThrottleValues
             // 
@@ -193,7 +182,6 @@ namespace bms_burner
         private System.Windows.Forms.OpenFileDialog dlgBMSLocation;
         private System.Windows.Forms.Timer throttlePoll;
         private System.Windows.Forms.Label lblThrottleReading;
-        private System.Windows.Forms.Label lblIdle;
         private System.Windows.Forms.GroupBox grpThrottleValues;
         private System.Windows.Forms.Label lblAfterburner;
         private System.Windows.Forms.PictureBox picBurner;
