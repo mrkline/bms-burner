@@ -164,6 +164,7 @@ namespace bms_burner
             this.Controls.Add(this.lblBMSLocation);
             this.Controls.Add(this.grpThrottleValues);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainWindow";
             this.Text = "BMS Burner Sounds";
             this.grpThrottleValues.ResumeLayout(false);
