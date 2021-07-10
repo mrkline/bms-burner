@@ -32,16 +32,15 @@ namespace bms_burner
             Log.Debug("Successfully loaded axismapping.dat, joystick.cal, & devicesorting.txt");
             Log.Verbose("Device GUIDs from devicesorting.txt: {0}", devices);
 
-            // Most of this is reverse-engineered from undocumented
-            // byte slinging in the Alternative Launcher. Better docs welcome.
-
             // Axismapping.dat starts with a 24-byte header of:
-            // - The primary (pitch) device's index + 2(!?) as a 4-byte LE int
+            // - The primary (pitch) device's index + 2
+            //   (first two are mouse & keyboard) as a 4-byte LE int
             // - The primary (pitch) device's GUID
             // - The number of devices as a 4-byte LE int.
             //
             // Following that, each bound axis has a 16-byte entry containing:
-            // - The axis's device index + 2(!?) as a 4-byte LE int
+            // - The axis's device index + 2 (first two are mouse & keyboard)
+            //   as a 4-byte LE int
             // - The axis index (see axismapper below) as a 4-byte LE int
             // - Deadzone info (format unknown) as a 4-byte field
             // - Saturation info (format unknown) as a 4-byte field
@@ -50,7 +49,12 @@ namespace bms_burner
             byte[] throttleBytes = new byte[16];
             Array.Copy(axisMappingFile, 72, throttleBytes, 0, 16);
             Log.Verbose("Raw throttle device number (index + 2): {0}", throttleBytes[0]);
-            int deviceNum = throttleBytes[0] - 2;
+            int deviceNum = throttleBytes[0];
+            if (deviceNum == 255)
+            {
+                throw new IndexOutOfRangeException("Throttle device not set");
+            }
+            deviceNum -= 2;
 
             int axisIndex = throttleBytes[4];
             Log.Debug("Throttle axis index: {0}", axisIndex);
