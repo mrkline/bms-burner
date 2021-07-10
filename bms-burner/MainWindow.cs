@@ -103,8 +103,7 @@ namespace bms_burner
 
             try
             {
-                throttle = new Joystick(input, bmsConfig.ThrottleDeviceGUID);
-                throttle.Acquire();
+                throttle = findAndAcquireThrottle(bmsConfig.ThrottleDeviceGUID);
             }
             catch (Exception ex)
             {
@@ -118,6 +117,27 @@ namespace bms_burner
 
             bmsPoll.Start();
             throttlePoll.Start();
+        }
+
+        private Joystick findAndAcquireThrottle(Guid uid)
+        {
+            // Some throttles enumerate as multiple devices.
+            // Find one with axes to avoid using the wrong device.
+            var throttleDevices = input.GetDevices().Where(dev => dev.ProductGuid == uid);
+            foreach (var device in throttleDevices) {
+                var potentialThrottle = new Joystick(input, device.InstanceGuid);
+                potentialThrottle.Acquire();
+                if (potentialThrottle.Capabilities.AxeCount > 0)
+                {
+                    // Could we check if we have the specific axis we're looking for?
+                    return potentialThrottle;
+                }
+                else
+                {
+                    potentialThrottle.Dispose();
+                }
+            }
+            throw new Exception(String.Format("Couldn't find any device with axes and ID {0}", uid));
         }
 
         private void throttlePoll_tick(object sender, EventArgs e)
